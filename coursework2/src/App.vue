@@ -3,32 +3,29 @@
     <form class="card card-w30">
       <div class="form-control">
         <label for="type">Тип блока</label>
-        <select id="type">
-          <option value="title">Заголовок</option>
-          <option value="subtitle">Подзаголовок</option>
-          <option value="avatar">Аватар</option>
-          <option value="text">Текст</option>
+        <select id="type" v-model="selectedValue">
+          <option
+            v-for="item in Object.keys(typeOfSelect)"
+            :key="typeOfSelect[item]"
+            :value="typeOfSelect[item]"
+          >{{item}}</option>
         </select>
       </div>
 
       <div class="form-control">
         <label for="value">Значение</label>
-        <textarea id="value" rows="3"></textarea>
+        <textarea id="value" rows="3" v-model="text"></textarea>
       </div>
-
-      <button class="btn primary">Добавить</button>
+      <button class="btn primary" @click.prevent="onAdd(selectedValue, text)">Добавить</button>
     </form>
-
     <div class="card card-w70">
-      <h1>Резюме Nickname</h1>
-      <div class="avatar">
-        <img src="https://cdn.dribbble.com/users/5592443/screenshots/14279501/drbl_pop_r_m_rick_4x.png">
-      </div>
-      <h2>Опыт работы</h2>
-      <p>
-        главный герой американского мультсериала «Рик и Морти», гениальный учёный, изобретатель, атеист (хотя в некоторых сериях он даже молится Богу, однако, каждый раз после чудесного спасения ссылается на удачу и вновь отвергает его существование), алкоголик, социопат, дедушка Морти. На момент начала третьего сезона ему 70 лет[1]. Рик боится пиратов, а его главной слабостью является некий - "Санчезиум". Исходя из того, что существует неограниченное количество вселенных, существует неограниченное количество Риков, герой сериала предположительно принадлежит к измерению С-137. В серии комикcов Рик относится к измерению C-132, а в игре «Pocket Mortys» — к измерению C-123[2]. Прототипом Рика Санчеза является Эмметт Браун, герой кинотрилогии «Назад в будущее»[3].
-      </p>
-      <h3>Добавьте первый блок, чтобы увидеть результат</h3>
+      <hr />
+      <component v-for="component in components"
+                 :is="component[1][0]"
+                 :text="component[1][1]"
+                 :key="component[0]"
+      ></component>
+      <h3 v-if="!components.size">Добавьте первый блок, чтобы увидеть результат</h3>
     </div>
   </div>
   <div class="container">
@@ -51,8 +48,34 @@
 </template>
 
 <script>
-export default {
+import AppTitle from './AppTitle'
+import AppAvatar from './AppAvatar'
+import AppSubtitle from './AppSubtitle'
+import AppText from './AppText'
 
+export default {
+  data () {
+    return {
+      selectedValue: 'title',
+      typeOfSelect: {
+        Заголовок: 'app-title',
+        Аватар: 'app-avatar',
+        Подзаголовок: 'app-subtitle',
+        Текст: 'app-text'
+      },
+      components: new Map(),
+      text: '',
+      id: 1
+    }
+  },
+  methods: {
+    onAdd (selectedValue, text) {
+      this.components.set(this.id, [selectedValue, text])
+      this.text = ''
+      this.id++
+    }
+  },
+  components: { AppTitle, AppAvatar, AppSubtitle, AppText }
 }
 </script>
 
