@@ -1,12 +1,11 @@
 <template>
   <p>
-    {{text}}
+    {{$attrs.content}}
   </p>
 </template>
 
 <script>
 export default {
-  props: ['text']
 }
 </script>
 
