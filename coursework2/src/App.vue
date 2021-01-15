@@ -8,7 +8,8 @@
             v-for="item in Object.keys(typeOfSelect)"
             :key="item"
             :value="item"
-          >{{typeOfSelect[item]}}</option>
+          >{{ typeOfSelect[item] }}
+          </option>
         </select>
       </div>
 
@@ -19,16 +20,19 @@
       <button class="btn primary"
               @click.prevent="onAdd(selectedValue, text)"
               :disabled="isBtnDisabled"
-      >Добавить</button>
+      >Добавить
+      </button>
     </form>
     <div class="card card-w70">
-      <hr />
-      <component v-for="component in components"
-                 :is="component[1][0]"
-                 v-bind={content:component[1][1]}
-                 :key="component[0]"
-      ></component>
-      <h3 v-if="!components.size">Добавьте первый блок, чтобы увидеть результат</h3>
+      <hr/>
+      <div v-if="components.length">
+        <component v-for="component in components"
+                   :key="component.id"
+                   :is="component.title"
+                   v-bind={content:component.content}
+        ></component>
+      </div>
+      <h3 v-else>Добавьте первый блок, чтобы увидеть результат</h3>
     </div>
   </div>
   <div class="container">
@@ -54,30 +58,53 @@ import AppAvatar from './AppAvatar'
 import AppSubtitle from './AppSubtitle'
 import AppText from './AppText'
 import AppComment from '@/AppComment'
+import axios from 'axios'
 
 export default {
   data () {
     return {
       typeOfSelect: {
-        AppTitle: 'Заголовок',
-        AppAvatar: 'Аватар',
-        AppSubtitle: 'Подзаголовок',
-        AppText: 'Текст'
+        'app-title': 'Заголовок',
+        'app-avatar': 'Аватар',
+        'app-subtitle': 'Подзаголовок',
+        'app-text': 'Текст'
       },
       selectedValue: 'AppTitle',
-      components: new Map(),
+      components: [],
       text: '',
-      id: 1,
       loading: false,
-      comments: {}
+      baseUrl: 'https://vue-course-a990b-default-rtdb.firebaseio.com/data.json',
+      comments: {},
+      b: ''
     }
   },
+  mounted () {
+    this.loadComponents()
+  },
   methods: {
+    async loadComponents () {
+      const { data } = await axios.get(this.baseUrl)
+      if (data) {
+        this.components = Object.keys(data).map(key => {
+          return {
+            id: data[key].id,
+            title: data[key].title,
+            content: data[key].content
+          }
+        })
+      }
+    },
     onAdd (selectedValue, text) {
-      this.components.set(this.id, [selectedValue, text])
+      const component = {
+        title: selectedValue,
+        id: Date.now().toString() + selectedValue,
+        content: text
+      }
+      axios.post(this.baseUrl, component)
+        .catch(error => console.error(error))
+      this.components.push(component)
       this.text = ''
-      this.id++
-      this.selectedValue = 'AppTitle'
+      this.selectedValue = 'app-title'
     },
     async loadComments () {
       this.loading = true
@@ -96,7 +123,13 @@ export default {
       return !(this.text.length > 3)
     }
   },
-  components: { AppTitle, AppAvatar, AppSubtitle, AppText, AppComment }
+  components: {
+    AppTitle,
+    AppAvatar,
+    AppSubtitle,
+    AppText,
+    AppComment
+  }
 }
 </script>
 
