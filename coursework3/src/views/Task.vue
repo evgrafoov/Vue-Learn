@@ -5,7 +5,7 @@
       <AppStatus :type="task.status"/>
     </p>
     <p><strong>Дэдлайн</strong>: {{ task.deadLine }}</p>
-    <p><strong>Описание</strong>: {{ task.descr }}</p>
+    <p><strong>Описание</strong>: {{ task.description }}</p>
     <div>
       <button class="btn" @click.prevent="onChangeStatus('active')">Взять в работу</button>
       <button class="btn primary" @click.prevent="onChangeStatus('done')">Завершить</button>
